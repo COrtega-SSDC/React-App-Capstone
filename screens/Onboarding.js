@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 const Onboarding = () => {
   return (
       <View style={styles.container}>
-        <Image source={require('../assets/little-lemon-logo.png')} style={styles.logo} />
+        <Image source={require('../assets/Logo.png')} style={styles.logo} />
         <Text style={styles.headerText}>
           Little Lemon, your local Mediterranean Bistro
         </Text>
