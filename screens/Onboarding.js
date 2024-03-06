@@ -1,14 +1,66 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, TextInput, Alert, Pressable } from 'react-native';
 
 const Onboarding = () => {
+
+  const [firstName, setFirstName] = useState("")
+  const [email, setEmail] = useState("")
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  useEffect(() => {
+    
+    setIsFormValid(firstNameCheck(firstName) == true && emailValidation(email) == true);
+  }, [firstName, email]);
+
+  const emailValidation = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const firstNameCheck = (firstname) => {
+    const nameRegex = /^[A-Za-z]+$/;
+    return nameRegex.test(firstname);
+  }
+
   return (
-      <View style={styles.container}>
-        <Image source={require('../assets/Logo.png')} style={styles.logo} />
+
+    <View style={styles.container}>
+      <View>
+        <Image source={require('../assets/Test.png')} style={styles.logo} />
         <Text style={styles.headerText}>
-          Little Lemon, your local Mediterranean Bistro
+          Let us get to know you
         </Text>
+
+        <Text style={styles.label}>First Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder='First Name'
+          onChangeText={setFirstName}
+          value={firstName}
+        />
+
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder='Email'
+          keyboardType='email-address'
+          onChangeText={setEmail}
+          value={email}
+        />
       </View>
+      <View>
+        <Pressable
+          style={[styles.button, isFormValid ? styles.buttonEnabled : styles.buttonDisabled]}
+          onPress={() => alert("Hello")}
+          disabled={!isFormValid}>
+          <Text style={styles.buttonText}>Next</Text>
+        </Pressable>
+      </View>
+
+    </View>
+
+
 
   )
 
@@ -20,19 +72,52 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: "white"
+  },
+  button: {
+    paddingVertical: 12,
+    paddingHorizontal: 82,
+    borderRadius: 8,
+    marginTop: 40
+  },
+  buttonEnabled: {
+    backgroundColor: '#495e57', 
+  },
+  buttonDisabled: {
+    backgroundColor: '#EDEFEE', 
+  },
+  buttonText: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: 'white',
+  },
+  label: {
+    textAlign: "left",
+    marginLeft: 15,
   },
   logo: {
-    height: 225,
+    height: 75,
     width: 325,
     resizeMode: 'contain',
-    marginTop: 160,
-    marginBottom: 35
+    marginTop: 20,
+    // marginBottom: 35
   },
   headerText: {
     padding: 40,
     fontSize: 25,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 150
+    marginBottom: 50,
+    marginTop: 20,
+  },
+  input: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 20,
   }
 })
