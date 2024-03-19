@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { PaperProvider } from 'react-native-paper';
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-// import RootNavigator from "./navigators/RootNavigator";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Onboarding from './screens/Onboarding';
 import Profile from './screens/Profile';
