@@ -89,31 +89,44 @@ const Profile = () => {
         </View>
 
         <Text style={styles.notification}>Email Notifications</Text>
-        <View style={styles.containerCheckbox}>
-          <Checkbox
-            status={orderNotif ? 'checked' : 'unchecked'}
-            onPress={() => {
-              setOrderNotif(!orderNotif);
-            }}
-          />
-          <Checkbox
-            status={passwordNotif ? 'checked' : 'unchecked'}
-            onPress={() => {
-              setpasswordNotif(!passwordNotif);
-            }}
-          />
-          <Checkbox
-            status={offers ? 'checked' : 'unchecked'}
-            onPress={() => {
-              setOffers(!offers);
-            }}
-          />
-          <Checkbox
-            status={newsletter ? 'checked' : 'unchecked'}
-            onPress={() => {
-              setNewsletter(!newsletter);
-            }}
-          />
+        <View style={styles.containerNotif}>
+          <View style={styles.containerCheckBox}>
+            <Checkbox
+              status={orderNotif ? 'checked' : 'unchecked'}
+              onPress={() => {
+                setOrderNotif(!orderNotif);
+              }}
+            />
+            <Text style={styles.checkboxText}>Order Statuses</Text>
+          </View>
+          <View style={styles.containerCheckBox}>
+            <Checkbox
+              status={passwordNotif ? 'checked' : 'unchecked'}
+              onPress={() => {
+                setpasswordNotif(!passwordNotif);
+              }}
+            />
+            <Text style={styles.checkboxText}>Password Changes</Text>
+          </View>
+          <View style={styles.containerCheckBox}>
+            <Checkbox
+              status={offers ? 'checked' : 'unchecked'}
+              onPress={() => {
+                setOffers(!offers);
+              }}
+            />
+            <Text style={styles.checkboxText}>Special Offers</Text>
+          </View>
+          <View style={styles.containerCheckBox}>
+            <Checkbox
+              status={newsletter ? 'checked' : 'unchecked'}
+              onPress={() => {
+                setNewsletter(!newsletter);
+              }}
+            />
+            <Text style={styles.checkboxText}>Newsletter</Text>
+          </View>
+
         </View>
 
         <Pressable style={styles.signOutButton}>
@@ -143,10 +156,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 60,
   },
-  containerCheckbox: {
-    marginLeft: 15,
+  containerCheckBox: {
+    flexDirection: 'row',
   },
   containerForm: {
     marginTop: 10,
@@ -157,8 +170,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 20,
   },
+  containerNotif: {
+    marginLeft: 12,
+    marginTop: 10,
+  },
   avatar: {
-    margin: '10px 0 0 -15px',
+    marginTop: 10,
+    marginLeft: -15
   },
   avatarLabel: {
     marginBottom: 10,
@@ -168,7 +186,8 @@ const styles = StyleSheet.create({
   change: {
     paddingVertical: 15,
     paddingHorizontal: 25,
-    margin: '40px 0 0 20px',
+    marginTop: 40,
+    marginLeft: 20,
     borderRadius: 10,
     backgroundColor: '#495e57',
   },
@@ -178,10 +197,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
+  checkboxText: {
+    marginTop: 7,
+    fontSize: 15,
+    fontFamily: 'Karla_400Regular',
+    fontWeight: 'bold',
+  },
   signOutButton: {
     alignItems: 'center',
     paddingVertical: 10,
-    margin: '40px 20px 0 20px',
+    marginTop: 40,
+    marginRight: 20,
+    marginLeft: 20,
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#EE9972',
@@ -198,7 +225,8 @@ const styles = StyleSheet.create({
   discard: {
     paddingVertical: 11,
     paddingHorizontal: 10,
-    margin: '40px 20px 0 0',
+    marginTop: 40,
+    marginRight: 20,
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#495e57',
@@ -210,22 +238,25 @@ const styles = StyleSheet.create({
     color: '#495e57',
   },
   headerText: {
-    textAlign: 'left',
-    margin: '25px auto auto 20px',
+    marginTop: 20,
+    marginLeft: 20,
     fontSize: 25,
     fontFamily: 'Karla_400Regular',
     fontWeight: 'bold',
   },
   input: {
     height: 40,
-    padding: 15,
-    margin: 'auto 20px 30px 20px',
+    padding: 12,
+    marginRight: 20,
+    marginBottom: 30,
+    marginLeft: 20,
     borderRadius: 10,
     borderWidth: 1,
   },
   label: {
     textAlign: 'left',
-    margin: '0 0 5px 20px',
+    marginBottom: 5,
+    marginLeft: 20,
     fontSize: 12,
     fontFamily: 'Karla_400Regular',
     fontWeight: 'bold',
@@ -241,7 +272,8 @@ const styles = StyleSheet.create({
   remove: {
     paddingVertical: 13,
     paddingHorizontal: 23,
-    margin: '40px 0 0 20px',
+    marginTop: 40,
+    marginLeft: 20,
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#495e57',
@@ -255,7 +287,8 @@ const styles = StyleSheet.create({
   save: {
     paddingVertical: 13,
     paddingHorizontal: 13,
-    margin: '40px 0 0 10px',
+    marginTop: 40,
+    marginLeft: 10,
     borderRadius: 10,
     backgroundColor: '#495e57',
   },
