@@ -6,6 +6,7 @@ import { MarkaziText_500Medium } from '@expo-google-fonts/markazi-text';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   TextInput,
   Pressable,
@@ -14,7 +15,11 @@ import {
 } from 'react-native';
 import { Avatar, Checkbox } from 'react-native-paper';
 
-const Profile = () => {
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ExpoImagePicker from 'expo-image-picker';
+
+export default function Profile() {
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -24,14 +29,118 @@ const Profile = () => {
   const [offers, setOffers] = useState(false)
   const [newsletter, setNewsletter] = useState(false)
 
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [emailError, setEmailError] = useState('')
+  const [phoneError, setPhoneError] = useState('')
+
+  const [image, setImage] = useState(null)
+
   let [fontsLoaded, fontError] = useFonts({
     Karla_400Regular,
     MarkaziText_500Medium,
   });
 
+  const firstNameCheck = (firstname) => {
+    const nameRegex = /^[A-Za-z]+$/;
+    return nameRegex.test(firstname);
+  }
+
+  const lastNameCheck = (lastname) => {
+    const nameRegex = /^[A-Za-z]+$/;
+    return nameRegex.test(lastname);
+  }
+
+  const emailValidation = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(email)) {
+      setEmailError('')
+      return true
+    }
+    else {
+      setEmailError('Please enter a valid email address')
+      return false
+    }
+  };
+
+  const phoneNumberValidation = (phoneNumber) => {
+    const numberRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
+    if (numberRegex.test(phoneNumber)) {
+      setPhoneError('')
+      return true
+    }
+    else {
+      setPhoneError('Please enter a valid phone number')
+      return false
+    }
+  }
+
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS !== 'web') {
+        const { status } = await ExpoImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          alert('Sorry, we need camera roll permissions to make this work!');
+        }
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    const getFirstName = async () => {
+      try {
+        const value = await AsyncStorage.getItem('firstName');
+        if (value !== null) {
+          setFirstName(JSON.parse(value));
+        }
+
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    const getEmail = async () => {
+      try {
+        const value = await AsyncStorage.getItem('email');
+        if (value !== null) {
+          setEmail(JSON.parse(value));
+        }
+
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    getFirstName()
+    getEmail()
+
+    setIsFormValid(
+      firstNameCheck(firstName) &&
+      lastNameCheck(lastName) &&
+      emailValidation(email) &&
+      phoneNumberValidation(phoneNumber)
+    )
+  }, [firstName, lastName, email, phoneNumber])
+
   if (!fontsLoaded && !fontError) {
     return null;
   }
+
+  const pickImage = async () => {
+    let result = await ExpoImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  }
+
+  const renderInitials = (firstName, lastName) => {
+    const firstInitial = firstName.length > 0 ? firstName[0] : '';
+    const lastInitial = lastName.length > 0 ? lastName[0] : '';
+    return firstInitial + lastInitial;
+  };
 
   return (
     <View style={styles.container}>
@@ -41,13 +150,21 @@ const Profile = () => {
         <View style={styles.containerInfo}>
           <View style={styles.avatar}>
             <Text style={styles.avatarLabel}>Avatar</Text>
-            <Avatar.Icon size={72} icon="folder" />
+            {image ? (
+              <Image source={{ uri: image }} style={{ width: 72, height: 72 }} />
+            ) : (
+              <View style={styles.initialsAvatar}>
+                <Text style={styles.initialsText}>
+                  {renderInitials(firstName, lastName)}
+                </Text>
+              </View>
+            )}
           </View>
 
-          <Pressable style={styles.change}>
+          <Pressable style={styles.change} onPress={pickImage}>
             <Text style={styles.changeText}>Change</Text>
           </Pressable>
-          <Pressable style={styles.remove}>
+          <Pressable style={styles.remove} onPress={() => setImage(null)}>
             <Text style={styles.removeText}>Remove</Text>
           </Pressable>
         </View>
@@ -77,15 +194,17 @@ const Profile = () => {
             onChangeText={setEmail}
             value={email}
           />
+          {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
           <Text style={styles.label}>Phone Number</Text>
           <TextInput
             style={styles.input}
             placeholder="Phone Number"
-            keyboardType="number-pad"
+            keyboardType="phone-pad"
             onChangeText={setPhoneNumber}
             value={phoneNumber}
           />
+          {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
         </View>
 
         <Text style={styles.notification}>Email Notifications</Text>
@@ -145,7 +264,7 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+
 
 const styles = StyleSheet.create({
   container: {
@@ -203,6 +322,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Karla_400Regular',
     fontWeight: 'bold',
   },
+  errorText: {
+    color: 'red'
+  },
   signOutButton: {
     alignItems: 'center',
     paddingVertical: 10,
@@ -242,6 +364,19 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     fontSize: 25,
     fontFamily: 'Karla_400Regular',
+    fontWeight: 'bold',
+  },
+  initialsAvatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#00BCD4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  initialsText: {
+    color: 'white',
+    fontSize: 28,
     fontWeight: 'bold',
   },
   input: {
