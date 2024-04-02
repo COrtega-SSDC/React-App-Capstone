@@ -248,7 +248,12 @@ export default function Profile() {
 
         </View>
 
-        <Pressable style={styles.signOutButton}>
+        <Pressable style={styles.signOutButton}
+          onPress={() => {
+            AsyncStorage.getAllKeys()
+              .then(keys => AsyncStorage.multiRemove(keys))
+          }}
+        >
           <Text style={styles.buttonText}>Log Out</Text>
         </Pressable>
         <View style={styles.containerButton}>
