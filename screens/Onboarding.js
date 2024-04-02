@@ -30,9 +30,9 @@ const Onboarding = () => {
 
   const handleOnboarding = async () => {
     try {
-      await AsyncStorage.setItem('onboardingCompleted', JSON.stringify(true));
-      await AsyncStorage.setItem('firstName', JSON.stringify(firstName))
-      await AsyncStorage.setItem('email', JSON.stringify(email))
+      await AsyncStorage.setItem('onboardingCompleted', 'true');
+      await AsyncStorage.setItem('firstName', firstName)
+      await AsyncStorage.setItem('email', email)
 
       // Navigate to the next screen or perform any other action
       navigation.navigate('Profile');
