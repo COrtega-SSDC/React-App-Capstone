@@ -2,11 +2,16 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, Alert, Pressable } from 'react-native';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+
 const Onboarding = () => {
 
   const [firstName, setFirstName] = useState("")
   const [email, setEmail] = useState("")
   const [isFormValid, setIsFormValid] = useState(false);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     
@@ -22,6 +27,19 @@ const Onboarding = () => {
     const nameRegex = /^[A-Za-z]+$/;
     return nameRegex.test(firstname);
   }
+
+  const handleOnboarding = async () => {
+    try {
+      await AsyncStorage.setItem('onboardingCompleted', JSON.stringify(true));
+      await AsyncStorage.setItem('firstName', JSON.stringify(firstName))
+      await AsyncStorage.setItem('email', JSON.stringify(email))
+
+      // Navigate to the next screen or perform any other action
+      navigation.navigate('Profile');
+    } catch (error) {
+      console.error('Error storing onboarding completion status:', error);
+    }
+  };
 
   return (
 
@@ -52,7 +70,7 @@ const Onboarding = () => {
       <View>
         <Pressable
           style={[styles.button, isFormValid ? styles.buttonEnabled : styles.buttonDisabled]}
-          onPress={() => alert("Hello")}
+          onPress={() => handleOnboarding()}
           disabled={!isFormValid}>
           <Text style={styles.buttonText}>Next</Text>
         </Pressable>
