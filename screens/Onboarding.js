@@ -30,9 +30,17 @@ const Onboarding = () => {
 
   const handleOnboarding = async () => {
     try {
-      await AsyncStorage.setItem('onboardingCompleted', 'true');
-      await AsyncStorage.setItem('firstName', firstName)
-      await AsyncStorage.setItem('email', email)
+      // await AsyncStorage.setItem('onboardingCompleted', 'true');
+      // await AsyncStorage.setItem('firstName', firstName)
+      // await AsyncStorage.setItem('email', email)
+
+      const values = [
+        ['firstName', firstName], 
+        ['email', email], 
+        ['onboardingCompleted', 'true']
+      ];
+
+      await AsyncStorage.multiSet(keys);
 
       // Navigate to the next screen or perform any other action
       navigation.navigate('Profile');
