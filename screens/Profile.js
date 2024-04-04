@@ -74,6 +74,48 @@ export default function Profile() {
     }
   }
 
+  const profileData = async () => {
+    try {
+      
+      const values = [
+        ['firstName', firstName], 
+        ['lastName', lastName], 
+        ['email', email], 
+        ['onboardingCompleted', 'true'],
+        ['orderStatus', String(orderNotif)],
+        ['passwordChange', String(passwordNotif)],
+        ['offers', String(offers)],
+        ['newsletter', String(newsletter)]
+      ];
+
+      await AsyncStorage.multiSet(values);
+
+    } catch (error) {
+      console.error('Error storing profile information:', error);
+    }
+  };
+
+  const getProfileData = async () => {
+    try {
+      const keys = ['firstName', 'lastName', 'email', 'phoneNumber', 'orderStatus', 'passwordChange', 'offers', 'newsletter'];
+      const values = await AsyncStorage.multiGet(keys);
+      const storedData = Object.fromEntries(values);
+
+      setFirstName(storedData.firstName || '');
+      setLastName(storedData.lastName || '');
+      setEmail(storedData.email || '');
+      setPhoneNumber(storedData.phoneNumber || '');
+      setOrderNotif(storedData.orderStatus === 'true')
+      setpasswordNotif(storedData.passwordChange === 'true')
+      setOffers(storedData.offers === 'true')
+      setNewsletter(storedData.newsletter === 'true')
+
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+
   useEffect(() => {
     (async () => {
       if (Platform.OS !== 'web') {
@@ -85,31 +127,9 @@ export default function Profile() {
     })();
   }, []);
 
-  useEffect(() => {
-    const getFirstName = async () => {
-      try {
-        const value = await AsyncStorage.getItem('firstName');
-        if (value !== null) {
-          setFirstName(JSON.parse(value));
-        }
+  useEffect(() => {getProfileData()}, [])
 
-      } catch (e) {
-        console.log(e)
-      }
-    }
-    const getEmail = async () => {
-      try {
-        const value = await AsyncStorage.getItem('email');
-        if (value !== null) {
-          setEmail(JSON.parse(value));
-        }
-
-      } catch (e) {
-        console.log(e)
-      }
-    }
-    getFirstName()
-    getEmail()
+  useEffect(() => {   
 
     setIsFormValid(
       firstNameCheck(firstName) &&
@@ -250,17 +270,16 @@ export default function Profile() {
 
         <Pressable style={styles.signOutButton}
           onPress={() => {
-            AsyncStorage.getAllKeys()
-              .then(keys => AsyncStorage.multiRemove(keys))
+            AsyncStorage.clear()
           }}
         >
           <Text style={styles.buttonText}>Log Out</Text>
         </Pressable>
         <View style={styles.containerButton}>
           <Pressable style={styles.discard}>
-            <Text style={styles.discardText}>Discard Changes</Text>
+            <Text style={styles.discardText} onPress={getProfileData}>Discard Changes</Text>
           </Pressable>
-          <Pressable style={styles.save}>
+          <Pressable style={styles.save} onPress={profileData}>
             <Text style={styles.saveText}>Save Changes</Text>
           </Pressable>
         </View>
