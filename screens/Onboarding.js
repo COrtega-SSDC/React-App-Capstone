@@ -8,15 +8,20 @@ import { useNavigation } from '@react-navigation/native';
 const Onboarding = () => {
 
   const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState("")
   const [isFormValid, setIsFormValid] = useState(false);
 
   const navigation = useNavigation();
 
   useEffect(() => {
-    
-    setIsFormValid(firstNameCheck(firstName) == true && emailValidation(email) == true);
-  }, [firstName, email]);
+
+    setIsFormValid(
+      firstNameCheck(firstName) &&
+      lastNameCheck(lastName) &&
+      emailValidation(email))
+
+  }, [firstName, lastName, email]);
 
   const emailValidation = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,12 +33,19 @@ const Onboarding = () => {
     return nameRegex.test(firstname);
   }
 
+  const lastNameCheck = (lastname) => {
+    const nameRegex = /^[A-Za-z]+$/;
+    return nameRegex.test(lastname);
+  }
+
+
   const handleOnboarding = async () => {
     try {
 
       const values = [
-        ['firstName', firstName], 
-        ['email', email], 
+        ['firstName', firstName],
+        ['lastName', lastName],
+        ['email', email],
         ['onboardingCompleted', 'true']
       ];
 
@@ -61,6 +73,14 @@ const Onboarding = () => {
           placeholder='First Name'
           onChangeText={setFirstName}
           value={firstName}
+        />
+
+        <Text style={styles.label}>Last Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder='Last Name'
+          onChangeText={setLastName}
+          value={lastName}
         />
 
         <Text style={styles.label}>Email</Text>
@@ -104,10 +124,10 @@ const styles = StyleSheet.create({
     marginTop: 40
   },
   buttonEnabled: {
-    backgroundColor: '#495e57', 
+    backgroundColor: '#495e57',
   },
   buttonDisabled: {
-    backgroundColor: '#EDEFEE', 
+    backgroundColor: '#EDEFEE',
   },
   buttonText: {
     fontSize: 16,
