@@ -40,7 +40,7 @@ const Onboarding = () => {
       await AsyncStorage.multiSet(values);
 
       // Navigate to the next screen or perform any other action
-      navigation.navigate('Profile');
+      navigation.navigate('Home');
     } catch (error) {
       console.error('Error storing onboarding completion status:', error);
     }
