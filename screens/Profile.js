@@ -17,6 +17,66 @@ import { Avatar, Checkbox } from 'react-native-paper';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ExpoImagePicker from 'expo-image-picker';
+import { useNavigation } from '@react-navigation/native';
+import { HeaderBackButton } from '@react-navigation/elements';
+
+
+export function ProfileHeader() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  const [image, setImage] = useState(null);
+
+  
+  const navigation = useNavigation();
+
+  const getData = async () => {
+    try {
+      const keys = ['firstName', 'lastName'];
+
+      const values = await AsyncStorage.multiGet(keys);
+      const storedData = Object.fromEntries(values);
+
+      setFirstName(storedData.firstName || '');
+      setLastName(storedData.lastName || '');
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const renderInitials = (firstName, lastName) => {
+    const firstInitial = firstName.length > 0 ? firstName[0] : '';
+    const lastInitial = lastName.length > 0 ? lastName[0] : '';
+    return firstInitial + lastInitial;
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  return (
+    <View style={styles.header}>
+      <View style={styles.leftContainer}>
+        <HeaderBackButton label="Profile" onPress={() => navigation.goBack()} style={styles.backButton} />
+      </View>
+      <View style={styles.logoContainer}>
+        <Image source={require('../assets/LogoTest.png')} style={styles.logo} />
+      </View>
+      
+      <Pressable style={styles.profile}>
+        {image ? (
+          <Image source={{ uri: image }} style={{ width: 179, height: 76 }} />
+        ) : (
+          <View style={styles.profileAvatar}>
+            <Text style={styles.profileInitials}>
+              {renderInitials(firstName, lastName)}
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    </View>
+  );
+}
 
 export default function Profile() {
 
@@ -286,7 +346,7 @@ export default function Profile() {
       </ScrollView>
     </View>
   );
-};
+}
 
 
 
@@ -316,6 +376,18 @@ const styles = StyleSheet.create({
   containerNotif: {
     marginLeft: 12,
     marginTop: 10,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 15
+  },
+  logoContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 30
   },
   avatar: {
     marginTop: 10,
@@ -421,6 +493,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'gray',
   },
+  logo: {
+    width: 179,
+    height: 76,
+    resizeMode: 'contain',
+  },
   notification: {
     textAlign: 'left',
     marginLeft: 20,
@@ -428,6 +505,22 @@ const styles = StyleSheet.create({
     fontFamily: 'Karla_400Regular',
     fontWeight: 'bold',
   },
+  profile: {
+    marginRight: 25
+  },
+  profileInitials: {
+    color: 'white',
+    fontSize: 19,
+    fontWeight: 'bold',
+  },
+  profileAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 36,
+    backgroundColor: '#00BCD4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },  
   remove: {
     paddingVertical: 13,
     paddingHorizontal: 23,
