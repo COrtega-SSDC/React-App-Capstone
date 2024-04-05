@@ -4,7 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Onboarding from './screens/Onboarding';
-import Profile from './screens/Profile';
+import Profile, { ProfileHeader } from './screens/Profile';
 import Home, {HomeHeader} from './screens/Home'
 // import SplashScreen from './screens/SplashScreen';
 
@@ -43,7 +43,7 @@ export default function App() {
           {isOnboardingCompleted ? (
             <>
               <Stack.Screen name="Home" component={Home} options={{header: props => <HomeHeader {...props} />,}} />
-              <Stack.Screen name="Profile" component={Profile} />
+              <Stack.Screen name="Profile" component={Profile} options={{header: props => <ProfileHeader {...props} />,}}/>
             </>
           ) : (
             <Stack.Screen name="Onboarding" component={Onboarding} />
