@@ -3,15 +3,18 @@ import { useState, useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import { Karla_400Regular } from '@expo-google-fonts/karla';
 import { MarkaziText_500Medium } from '@expo-google-fonts/markazi-text';
-import { View, Image, Text, StyleSheet } from 'react-native';
+import { View, Image, Text, StyleSheet, Pressable } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 export function HomeHeader() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
   const [image, setImage] = useState(null);
+
+  const navigation = useNavigation();
 
   const getData = async () => {
     try {
@@ -37,6 +40,10 @@ export function HomeHeader() {
     getData();
   }, []);
 
+  const handleProfilePress = () => {
+    navigation.navigate('Profile'); // replace 'ProfileScreen' with the actual route name
+  };
+
   return (
     <View style={styles.header}>
       <View style={styles.leftContainer}></View>
@@ -44,7 +51,7 @@ export function HomeHeader() {
         <Image source={require('../assets/LogoTest.png')} style={styles.logo} />
       </View>
       
-      <View style={styles.profile}>
+      <Pressable onPress={handleProfilePress} style={styles.profile}>
         {image ? (
           <Image source={{ uri: image }} style={{ width: 179, height: 76 }} />
         ) : (
@@ -54,7 +61,7 @@ export function HomeHeader() {
             </Text>
           </View>
         )}
-      </View>
+      </Pressable>
     </View>
   );
 }
