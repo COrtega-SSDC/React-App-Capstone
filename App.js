@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Onboarding from './screens/Onboarding';
 import Profile from './screens/Profile';
-import Home from './screens/Home'
+import Home, {HomeHeader} from './screens/Home'
 // import SplashScreen from './screens/SplashScreen';
 
 const Stack = createNativeStackNavigator();
@@ -42,7 +42,7 @@ export default function App() {
         <Stack.Navigator>
           {isOnboardingCompleted ? (
             <>
-              <Stack.Screen name="Home" component={Home} />
+              <Stack.Screen name="Home" component={Home} options={{header: props => <HomeHeader {...props} />,}} />
               <Stack.Screen name="Profile" component={Profile} />
             </>
           ) : (
