@@ -3,7 +3,7 @@ import { PaperProvider } from 'react-native-paper';
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Onboarding from './screens/Onboarding';
+import Onboarding, {RegisterHeader} from './screens/Onboarding';
 import Profile, { ProfileHeader } from './screens/Profile';
 import Home, {HomeHeader} from './screens/Home'
 // import SplashScreen from './screens/SplashScreen';
@@ -46,7 +46,7 @@ export default function App() {
               <Stack.Screen name="Profile" component={Profile} options={{header: props => <ProfileHeader {...props} />,}}/>
             </>
           ) : (
-            <Stack.Screen name="Onboarding" component={Onboarding} />
+            <Stack.Screen name="Onboarding" component={Onboarding} options={{header: props => <RegisterHeader {...props} />,}}/>
           )}
         </Stack.Navigator>
       </NavigationContainer>
