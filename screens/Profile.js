@@ -60,7 +60,7 @@ export function ProfileHeader() {
         <HeaderBackButton label="Profile" onPress={() => navigation.goBack()} style={styles.backButton} />
       </View>
       <View style={styles.logoContainer}>
-        <Image source={require('../assets/LogoTest.png')} style={styles.logo} />
+        <Image source={require('../assets/Logo.png')} style={styles.logo} />
       </View>
       
       <Pressable style={styles.profile}>

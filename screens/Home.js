@@ -48,7 +48,7 @@ export function HomeHeader() {
     <View style={styles.header}>
       <View style={styles.leftContainer}></View>
       <View style={styles.logoContainer}>
-        <Image source={require('../assets/LogoTest.png')} style={styles.logo} />
+        <Image source={require('../assets/Logo.png')} style={styles.logo} />
       </View>
       
       <Pressable onPress={handleProfilePress} style={styles.profile}>
