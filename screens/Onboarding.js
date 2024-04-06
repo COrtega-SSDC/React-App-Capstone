@@ -1,9 +1,21 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, Alert, Pressable } from 'react-native';
+import { useFonts } from 'expo-font';
+import { Karla_400Regular } from '@expo-google-fonts/karla';
+import { MarkaziText_500Medium } from '@expo-google-fonts/markazi-text';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+
+export function RegisterHeader() {
+
+  return (
+    <View style={styles.header}>
+        <Image source={require('../assets/Logo.png')} style={styles.logo} />
+    </View>
+  );
+}
 
 const Onboarding = () => {
 
@@ -11,6 +23,11 @@ const Onboarding = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState("")
   const [isFormValid, setIsFormValid] = useState(false);
+  let [fontsLoaded, fontError] = useFonts({
+    Karla_400Regular,
+    MarkaziText_500Medium,
+  });
+
 
   const navigation = useNavigation();
 
@@ -58,11 +75,14 @@ const Onboarding = () => {
     }
   };
 
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
 
     <View style={styles.container}>
       <View>
-        <Image source={require('../assets/Test.png')} style={styles.logo} />
         <Text style={styles.headerText}>
           Let us get to know you
         </Text>
@@ -117,6 +137,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white"
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 15
+  },
   button: {
     paddingVertical: 12,
     paddingHorizontal: 82,
@@ -132,6 +158,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     lineHeight: 21,
+    fontFamily: 'Karla_400Regular',
     fontWeight: 'bold',
     letterSpacing: 0.25,
     color: 'white',
@@ -139,17 +166,17 @@ const styles = StyleSheet.create({
   label: {
     textAlign: "left",
     marginLeft: 15,
+    fontFamily: 'Karla_400Regular',
   },
   logo: {
-    height: 75,
-    width: 325,
+    width: 179,
+    height: 76,
     resizeMode: 'contain',
-    marginTop: 20,
-    // marginBottom: 35
   },
   headerText: {
     padding: 40,
     fontSize: 25,
+    fontFamily: 'Karla_400Regular',
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 50,
