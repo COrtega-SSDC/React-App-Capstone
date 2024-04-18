@@ -3,7 +3,16 @@ import { useState, useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import { Karla_400Regular } from '@expo-google-fonts/karla';
 import { MarkaziText_500Medium } from '@expo-google-fonts/markazi-text';
-import { View, Image, Text, StyleSheet, Pressable } from 'react-native';
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  Pressable,
+  FlatList,
+} from 'react-native';
+
+import { Divider } from 'react-native-paper';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -50,7 +59,7 @@ export function HomeHeader() {
       <View style={styles.logoContainer}>
         <Image source={require('../assets/Logo.png')} style={styles.logo} />
       </View>
-      
+
       <Pressable onPress={handleProfilePress} style={styles.profile}>
         {image ? (
           <Image source={{ uri: image }} style={{ width: 179, height: 76 }} />
@@ -67,24 +76,89 @@ export function HomeHeader() {
 }
 
 export default function Home() {
+  const [menu, setMenu] = useState([]);
+
   let [fontsLoaded, fontError] = useFonts({
     Karla_400Regular,
     MarkaziText_500Medium,
   });
 
-  useEffect(() => {
-    fetch(
+  const fetchMenu = async () => {
+    const response = await fetch(
       'https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json'
-    ).then();
+    );
+    const data = await response.json();
+    setMenu(data.menu);
+  };
+
+  // const fetchImages = async () => {
+  //   const response = await fetch(
+  //     'https://github.com/Meta-Mobile-Developer-PC/Working-With-Data-API/blob/main/images/greekSalad.jpg?raw=true'
+  //   );
+  //   const data = await response.json();
+  //   setMenu(data);
+  // };
+
+  useEffect(() => {
+    fetchMenu();
   }, []);
 
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
+  const truncateText = (text, maxLength) => {
+  if (text.length > maxLength) {
+    return text.substring(0, maxLength - 3) + '...';
+  } else {
+    return text;
+  }
+};
+
   return (
-    <View>
-      <Text>Homepage</Text>
+    <View style={styles.container}>
+      <Text style={styles.headerText}>ORDER FOR DELIVERY!</Text>
+      <View style={styles.filterContainer}>
+        <Pressable style={styles.button} marginLeft={23}>
+          <Text style={styles.buttonText}>Starters</Text>
+        </Pressable>
+        <Pressable style={styles.button}>
+          <Text style={styles.buttonText}>Mains</Text>
+        </Pressable>
+        <Pressable style={styles.button}>
+          <Text style={styles.buttonText}>Desserts</Text>
+        </Pressable>
+        <Pressable style={styles.button}>
+          <Text style={styles.buttonText}>Drinks</Text>
+        </Pressable>
+      </View>
+      <Divider style={styles.divider} />
+      <View style={styles.listContainer}>
+        <FlatList
+          scrollEnabled={true}
+          ItemSeparatorComponent={() => <Divider style={styles.itemDivider} />}
+          data={menu}
+          renderItem={({ item }) => (
+            <View style={styles.cardContainer}>
+              <View>
+                <Text style={styles.itemName}>{item.name}</Text>
+                <Text style={styles.description} numberOfLines={1}>
+                  {truncateText(item.description, 36)}
+                </Text>
+                <Text style={styles.itemPrice}>${item.price}</Text>
+              </View>
+              <View>
+                <Image
+                  source={{
+                    uri: `https://github.com/Meta-Mobile-Developer-PC/Working-With-Data-API/blob/main/images/${item.image}?raw=true`,
+                  }}
+                  style={styles.itemImage}
+                />
+              </View>
+            </View>
+          )}
+        />
+      </View>
     </View>
   );
 }
@@ -94,13 +168,64 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 15
+    marginTop: 15,
+  },
+  container: {
+    backgroundColor: 'white',
+    flex: 1,
+  },
+  cardContainer: {
+    marginBottom: 25,
+    marginLeft: 25,
+    flexDirection: 'row'
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    marginBottom: 30,
+  },
+  listContainer: {
+    paddingBottom: 200,
   },
   logoContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 80
+    marginLeft: 80,
+  },
+  headerText: {
+    marginTop: 20,
+    marginLeft: 20,
+    marginBottom: 25,
+    fontSize: 25,
+    fontFamily: 'MarkaziText_500Medium',
+    fontWeight: 'bold',
+  },
+  button: {
+    backgroundColor: '#EDEFEE',
+    borderRadius: 16,
+    marginRight: 23,
+  },
+  buttonText: {
+    color: '#495e57',
+    padding: 10,
+    fontSize: 16,
+    fontFamily: 'Karla_400Regular',
+    fontWeight: '800',
+  },
+  description: {
+    marginBottom: 35,
+    fontSize: 16,
+    fontFamily: 'Karla_400Regular',
+    color: '#495e57',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'grey',
+  },
+  itemDivider: {
+    height: 1,
+    marginRight: 23,
+    backgroundColor: '#EDEFEE',
   },
   initialsAvatar: {
     width: 50,
@@ -114,13 +239,34 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 19,
     fontWeight: 'bold',
-  },  
+  },
   logo: {
     width: 179,
     height: 76,
     resizeMode: 'contain',
   },
+  itemName: {
+    color: 'black',
+    fontSize: 20,
+    fontFamily: 'Karla_400Regular',
+    fontWeight: 'bold',
+    marginBottom: 23,
+    marginTop: 23,
+  },
+  itemImage: {
+    width: 81.47,
+    height: 79.73,
+    resizeMode: 'cover',
+    marginLeft: 27,
+    marginTop: 23,
+  },
+  itemPrice: {
+    fontSize: 20,
+    fontFamily: 'Karla_400Regular',
+    fontWeight: 'bold',
+    color: '#495e57',
+  },
   profile: {
-    marginRight: 25
+    marginRight: 25,
   },
 });
