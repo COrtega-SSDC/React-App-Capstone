@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as SQLite from 'expo-sqlite';
 import { useState, useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import { Karla_400Regular } from '@expo-google-fonts/karla';
@@ -11,11 +12,12 @@ import {
   Pressable,
   FlatList,
 } from 'react-native';
-
 import { Divider } from 'react-native-paper';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+
+const db = SQLite.openDatabase('little_lemon.db');
 
 export function HomeHeader() {
   const [firstName, setFirstName] = useState('');
@@ -83,24 +85,80 @@ export default function Home() {
     MarkaziText_500Medium,
   });
 
-  const fetchMenu = async () => {
-    const response = await fetch(
-      'https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json'
-    );
-    const data = await response.json();
-    setMenu(data.menu);
+  const initializeDB = () => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS menu (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, price REAL, image TEXT);',
+        [],
+        () => {
+          console.log('Database initialized');
+        },
+        (error) => {
+          console.log('Database initialization failed:', error);
+        }
+      );
+    });
   };
 
-  // const fetchImages = async () => {
-  //   const response = await fetch(
-  //     'https://github.com/Meta-Mobile-Developer-PC/Working-With-Data-API/blob/main/images/greekSalad.jpg?raw=true'
-  //   );
-  //   const data = await response.json();
-  //   setMenu(data);
-  // };
+  const checkData = () => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        'SELECT * FROM menu',
+        [],
+        (_, { rows }) => {
+          if (rows.length === 0) {
+            fetchMenu();
+          } else {
+            // Load data from database
+            loadDataFromDB();
+          }
+        },
+        (_, err) => {
+          console.error(err);
+        }
+      );
+    });
+  };
+
+  const loadDataFromDB = () => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        'SELECT * FROM menu',
+        [],
+        (_, { rows: { _array } }) => {
+          setMenu(_array);
+        },
+        (_, err) => {
+          console.error(err);
+        }
+      );
+    });
+  };
+
+  const fetchMenu = async () => {
+    try {
+      const response = await fetch(
+        'https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json'
+      );
+      const data = await response.json();
+      setMenu(data.menu);
+
+      db.transaction((tx) => {
+        data.forEach((item) => {
+          tx.executeSql(
+            'INSERT INTO menu (name, description, price, image) VALUES (?, ?, ?, ?)',
+            [item.name, item.description, item.price, item.image]
+          );
+        });
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    fetchMenu();
+    initializeDB();
+    checkData();
   }, []);
 
   if (!fontsLoaded && !fontError) {
@@ -108,12 +166,12 @@ export default function Home() {
   }
 
   const truncateText = (text, maxLength) => {
-  if (text.length > maxLength) {
-    return text.substring(0, maxLength - 3) + '...';
-  } else {
-    return text;
-  }
-};
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength - 3) + '...';
+    } else {
+      return text;
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -177,7 +235,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginBottom: 25,
     marginLeft: 25,
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   filterContainer: {
     flexDirection: 'row',
