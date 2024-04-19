@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Pressable,
   FlatList,
+  ScrollView,
 } from 'react-native';
 import { Divider } from 'react-native-paper';
 
@@ -79,6 +80,7 @@ export function HomeHeader() {
 
 export default function Home() {
   const [menu, setMenu] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState({});
 
   let [fontsLoaded, fontError] = useFonts({
     Karla_400Regular,
@@ -142,12 +144,13 @@ export default function Home() {
       );
       const data = await response.json();
       setMenu(data.menu);
+      console.log(data.menu);
 
       db.transaction((tx) => {
-        data.forEach((item) => {
+        data.menu.forEach((item) => {
           tx.executeSql(
-            'INSERT INTO menu (name, description, price, image) VALUES (?, ?, ?, ?)',
-            [item.name, item.description, item.price, item.image]
+            'INSERT INTO menu (name, description, price, image, category) VALUES (?, ?, ?, ?, ?)',
+            [item.name, item.description, item.price, item.image, item.category]
           );
         });
       });
@@ -173,22 +176,47 @@ export default function Home() {
     }
   };
 
+  const categories = [
+    { name: 'Starters' },
+    { name: 'Mains' },
+    { name: 'Desserts' },
+    { name: 'Drinks' },
+    { name: 'Specials' },
+  ];
+
+  const handleCategoryPress = (categoryName) => {
+    setSelectedCategories((prevState) => ({
+      ...prevState,
+      [categoryName]: !prevState[categoryName],
+    }));
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>ORDER FOR DELIVERY!</Text>
       <View style={styles.filterContainer}>
-        <Pressable style={styles.button} marginLeft={23}>
-          <Text style={styles.buttonText}>Starters</Text>
-        </Pressable>
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Mains</Text>
-        </Pressable>
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Desserts</Text>
-        </Pressable>
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Drinks</Text>
-        </Pressable>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {categories.map((category, index) => (
+            <Pressable
+              key={index}
+              style={[
+                styles.button,
+                selectedCategories[category.name] ? styles.selectedButton : {},
+                index === 0 ? { marginLeft: 23 } : {},
+              ]}
+              onPress={() => handleCategoryPress(category.name)}>
+              <Text
+                style={[
+                  styles.buttonText,
+                  selectedCategories[category.name]
+                    ? styles.selectedButtonText
+                    : {},
+                ]}>
+                {category.name}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
       </View>
       <Divider style={styles.divider} />
       <View style={styles.listContainer}>
@@ -326,5 +354,17 @@ const styles = StyleSheet.create({
   },
   profile: {
     marginRight: 25,
+  },
+  selectedButton: {
+    backgroundColor: '#495e57',
+    borderRadius: 16,
+    marginRight: 23,
+  },
+  selectedButtonText :{
+    color: '#F4CE14',
+    padding: 10,
+    fontSize: 16,
+    fontFamily: 'Karla_400Regular',
+    fontWeight: '800',
   },
 });
