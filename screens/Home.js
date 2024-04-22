@@ -90,7 +90,7 @@ export default function Home() {
   const initializeDB = () => {
     db.transaction((tx) => {
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS menu (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, price REAL, image TEXT);',
+        'CREATE TABLE IF NOT EXISTS menu (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, price REAL, image TEXT, category TEXT);',
         [],
         () => {
           console.log('Database initialized');
@@ -128,6 +128,7 @@ export default function Home() {
         'SELECT * FROM menu',
         [],
         (_, { rows: { _array } }) => {
+          console.log('Retrieved menu items from database:', _array);
           setMenu(_array);
         },
         (_, err) => {
@@ -144,18 +145,33 @@ export default function Home() {
       );
       const data = await response.json();
       setMenu(data.menu);
-      console.log(data.menu);
+      console.log('Fetched menu data:', data.menu);
 
       db.transaction((tx) => {
         data.menu.forEach((item) => {
+          const { name, description, price, image, category } = item;
+          console.log(
+            'Inserting menu item:',
+            name,
+            description,
+            price,
+            image,
+            category
+          );
           tx.executeSql(
             'INSERT INTO menu (name, description, price, image, category) VALUES (?, ?, ?, ?, ?)',
-            [item.name, item.description, item.price, item.image, item.category]
+            [name, description, price, image, category],
+            (_, result) => {
+              console.log('Menu item inserted successfully:', result.insertId);
+            },
+            (_, error) => {
+              console.error('Error inserting menu item:', error);
+            }
           );
         });
       });
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching menu data:', error);
     }
   };
 
@@ -163,6 +179,45 @@ export default function Home() {
     initializeDB();
     checkData();
   }, []);
+
+  useEffect(() => {
+    // Create an array of selected categories
+    console.log('selectedCategories:', selectedCategories);
+    const selected = Object.keys(selectedCategories).filter(
+      (category) => selectedCategories[category]
+    ).map(category => category.toLowerCase());
+    console.log('selected:', selected);
+
+    if (selected.length === 0) {
+      // If no categories are selected, load all menu items
+      console.log('Loading all menu items...');
+      loadDataFromDB();
+    } else {
+      // Construct and execute SQL query for filtering by selected categories
+      const placeholders = selected.map(() => '?').join(',');
+      const query = `
+        SELECT * FROM menu
+        WHERE category IN (${placeholders})
+      `;
+
+      console.log('Executing SQL query:', query);
+      console.log('Selected categories:', selected);
+
+      db.transaction((tx) => {
+        tx.executeSql(
+          query,
+          [...selected], // Pass selected categories as individual arguments
+          (_, { rows: { _array } }) => {
+            console.log('Menu items filtered:', _array);
+            setMenu(_array);
+          },
+          (_, error) => {
+            console.error('Error executing SQL query:', error);
+          }
+        );
+      });
+    }
+  }, [selectedCategories]);
 
   if (!fontsLoaded && !fontError) {
     return null;
@@ -360,7 +415,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginRight: 23,
   },
-  selectedButtonText :{
+  selectedButtonText: {
     color: '#F4CE14',
     padding: 10,
     fontSize: 16,
