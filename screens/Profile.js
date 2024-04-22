@@ -12,6 +12,7 @@ import {
   Pressable,
   ScrollView,
   Button,
+  Platform,
 } from 'react-native';
 import { Avatar, Checkbox } from 'react-native-paper';
 
@@ -205,7 +206,7 @@ export default function Profile() {
 
   const pickImage = async () => {
     let result = await ExpoImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ExpoImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -227,7 +228,7 @@ export default function Profile() {
       <ScrollView>
         <Text style={styles.headerText}>Personal Information</Text>
 
-        <View style={styles.containerInfo}>
+        <View style={styles.containerInfo} key={image}>
           <View style={styles.avatar}>
             <Text style={styles.avatarLabel}>Avatar</Text>
             {image ? (
