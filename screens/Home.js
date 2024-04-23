@@ -8,6 +8,7 @@ import {
   View,
   Image,
   Text,
+  TextInput,
   StyleSheet,
   Pressable,
   FlatList,
@@ -183,9 +184,9 @@ export default function Home() {
   useEffect(() => {
     // Create an array of selected categories
     console.log('selectedCategories:', selectedCategories);
-    const selected = Object.keys(selectedCategories).filter(
-      (category) => selectedCategories[category]
-    ).map(category => category.toLowerCase());
+    const selected = Object.keys(selectedCategories)
+      .filter((category) => selectedCategories[category])
+      .map((category) => category.toLowerCase());
     console.log('selected:', selected);
 
     if (selected.length === 0) {
@@ -248,6 +249,17 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.heroContainer}>
+        <View style={styles.leftHero}>
+          <Text style={styles.littlelemon}>Little Lemon</Text>
+          <Text style={styles.chicago}>Chicago</Text>
+          <Text style={styles.wall}>
+            We are a family owned Mediterranean restaurant, focused on
+            traditional recipes served with a modern twist.
+          </Text>
+          <TextInput style={styles.input}/>
+        </View>
+      </View>
       <Text style={styles.headerText}>ORDER FOR DELIVERY!</Text>
       <View style={styles.filterContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -324,6 +336,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 30,
   },
+  heroContainer: {
+    marginTop: 5,
+    backgroundColor: '#495e57',
+  },
+  leftHero: {
+    marginLeft: 22,
+  },
   listContainer: {
     paddingBottom: 200,
   },
@@ -353,6 +372,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Karla_400Regular',
     fontWeight: '800',
   },
+  chicago: {
+    fontSize: 40,
+    fontFamily: 'MarkaziText_500Medium',
+    fontWeight: 'regular',
+    color: 'white',
+    marginBottom: 17
+  },
   description: {
     marginBottom: 35,
     fontSize: 16,
@@ -362,6 +388,15 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: 'grey',
+  },
+  input: {
+    marginTop: 32,
+    marginBottom: 24,
+    marginRight: 28,
+    height: 42,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    borderWidth: 1,
   },
   itemDivider: {
     height: 1,
@@ -407,6 +442,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#495e57',
   },
+  littlelemon: {
+    marginBottom: -24,
+    fontSize: 64,
+    fontFamily: 'MarkaziText_500Medium',
+    color: '#F4CE14',
+  },
   profile: {
     marginRight: 25,
   },
@@ -421,5 +462,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Karla_400Regular',
     fontWeight: '800',
+  },
+  wall: {
+    color: 'white',
+    fontFamily: 'Karla_400Regular',
+    fontSize: 18,
+    fontWeight: 500,
+    width: 242,
+    height: 105,
   },
 });
