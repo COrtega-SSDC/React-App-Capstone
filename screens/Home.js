@@ -91,6 +91,23 @@ export default function Home() {
     MarkaziText_500Medium,
   });
 
+  const localImageMappings = {
+  'greekSalad.jpg': require('../assets/Greek salad.png'),
+  'bruschetta.jpg': require('../assets/Bruschetta.png'),
+  'grilledFish.jpg': require('../assets/Grilled fish.png'),
+  'pasta.jpg': require('../assets/Pasta.png'),
+  'lemonDessert.jpg': require('../assets/Lemon dessert.png'),
+};
+const getLocalImage = (imageName) => {
+  const imageResource = localImageMappings[imageName];
+  if (imageResource) {
+    return imageResource;
+  } else {
+    console.log("Falling back to placeholder for:", imageName); // Useful for debugging
+    return require('../assets/default-placeholder.jpg');
+  }
+};
+
   const initializeDB = () => {
     db.transaction((tx) => {
       tx.executeSql(
@@ -142,42 +159,60 @@ export default function Home() {
     });
   };
 
-  const fetchMenu = async () => {
-    try {
-      const response = await fetch(
-        'https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json'
-      );
-      const data = await response.json();
-      setMenu(data.menu);
-      console.log('Fetched menu data:', data.menu);
+  
+const fetchMenu = async () => {
+  try {
+    const response = await fetch(
+      'https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json'
+    );
+    const data = await response.json();
 
-      db.transaction((tx) => {
-        data.menu.forEach((item) => {
-          const { name, description, price, image, category } = item;
-          console.log(
-            'Inserting menu item:',
-            name,
-            description,
-            price,
-            image,
-            category
-          );
-          tx.executeSql(
-            'INSERT INTO menu (name, description, price, image, category) VALUES (?, ?, ?, ?, ?)',
-            [name, description, price, image, category],
-            (_, result) => {
-              console.log('Menu item inserted successfully:', result.insertId);
-            },
-            (_, error) => {
-              console.error('Error inserting menu item:', error);
-            }
-          );
-        });
+    db.transaction((tx) => {
+      data.menu.forEach((item) => {
+        const imageName = item.image.split('/').pop(); // Get just the filename
+        // No longer insert the require statement in the database, just the filename
+        tx.executeSql(
+          'INSERT INTO menu (name, description, price, image, category) VALUES (?, ?, ?, ?, ?)',
+          [item.name, item.description, item.price, imageName, item.category],
+          // ...callbacks
+        );
       });
-    } catch (error) {
-      console.error('Error fetching menu data:', error);
-    }
-  };
+    });
+
+    // Immediately update the menu state to show local images
+    const updatedMenuData = data.menu.map((item) => {
+      const imageName = item.image.split('/').pop(); // Get just the filename
+      const localImage = localImageMappings[imageName]; // Get the corresponding local image
+      return { ...item, image: localImage };
+    });
+
+    setMenu(updatedMenuData);
+    console.log('Fetched menu data:', updatedMenuData);
+
+  } catch (error) {
+    console.error('Error fetching menu data:', error);
+  }
+};
+
+const renderItem = ({ item }) => (
+  <View style={styles.cardContainer}>
+    <View>
+      <Text style={styles.itemName}>{item.name}</Text>
+      <Text style={styles.description} numberOfLines={1}>
+        {truncateText(item.description, 36)}
+      </Text>
+      <Text style={styles.itemPrice}>${item.price}</Text>
+    </View>
+    <View>
+      <Image
+        source={getLocalImage(item.image)}
+        style={styles.itemImage}
+      />
+    </View>
+  </View>
+);
+
+
 
   useEffect(() => {
     initializeDB();
@@ -307,25 +342,7 @@ export default function Home() {
               <Divider style={styles.itemDivider} />
             )}
             data={menu}
-            renderItem={({ item }) => (
-              <View style={styles.cardContainer}>
-                <View>
-                  <Text style={styles.itemName}>{item.name}</Text>
-                  <Text style={styles.description} numberOfLines={1}>
-                    {truncateText(item.description, 36)}
-                  </Text>
-                  <Text style={styles.itemPrice}>${item.price}</Text>
-                </View>
-                <View>
-                  <Image
-                    source={{
-                      uri: `https://github.com/Meta-Mobile-Developer-PC/Working-With-Data-API/blob/main/images/${item.image}?raw=true`,
-                    }}
-                    style={styles.itemImage}
-                  />
-                </View>
-              </View>
-            )}
+            renderItem={renderItem}
           />
           <Divider style={styles.itemDivider} />
         </View>
@@ -440,7 +457,7 @@ const styles = StyleSheet.create({
     backgroundImage: `url(${Search})`,
   },
   itemDivider: {
-    height: 1,
+    height: 2,
     marginRight: 23,
     marginLeft: 26,
     backgroundColor: '#EDEFEE',
@@ -474,9 +491,9 @@ const styles = StyleSheet.create({
   itemImage: {
     width: 81.47,
     height: 79.73,
-    resizeMode: 'cover',
+    resizeMode: 'fill',
     marginLeft: 27,
-    marginTop: 23,
+    marginTop: 40,
   },
   itemPrice: {
     fontSize: 20,
