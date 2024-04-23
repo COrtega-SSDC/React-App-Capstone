@@ -251,79 +251,86 @@ export default function Home() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.heroContainer}>
-        <View style={styles.heroText}>
-          <View>
-            <Text style={styles.littlelemon}>Little Lemon</Text>
-            <Text style={styles.chicago}>Chicago</Text>
-            <Text style={styles.wall}>
-              We are a family owned Mediterranean restaurant, focused on
-              traditional recipes served with a modern twist.
-            </Text>
-          </View>
-          <Image source={HeroImage} style={styles.heroImage} />
-        </View>
-        <ImageBackground
-          source={Search}
-          style={styles.input}
-          imageStyle={styles.imageStyle}>
-          <TextInput style={{ flex: 1 }} />
-        </ImageBackground>
-      </View>
-      <Text style={styles.headerText}>ORDER FOR DELIVERY!</Text>
-      <View style={styles.filterContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {categories.map((category, index) => (
-            <Pressable
-              key={index}
-              style={[
-                styles.button,
-                selectedCategories[category.name] ? styles.selectedButton : {},
-                index === 0 ? { marginLeft: 23 } : {},
-              ]}
-              onPress={() => handleCategoryPress(category.name)}>
-              <Text
-                style={[
-                  styles.buttonText,
-                  selectedCategories[category.name]
-                    ? styles.selectedButtonText
-                    : {},
-                ]}>
-                {category.name}
+    <ScrollView>
+      <View style={styles.container}>
+        <View style={styles.heroContainer}>
+          <View style={styles.heroText}>
+            <View>
+              <Text style={styles.littlelemon}>Little Lemon</Text>
+              <Text style={styles.chicago}>Chicago</Text>
+              <Text style={styles.wall}>
+                We are a family owned Mediterranean restaurant, focused on
+                traditional recipes served with a modern twist.
               </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-      </View>
-      <Divider style={styles.divider} />
-      <View style={styles.listContainer}>
-        <FlatList
-          scrollEnabled={true}
-          ItemSeparatorComponent={() => <Divider style={styles.itemDivider} />}
-          data={menu}
-          renderItem={({ item }) => (
-            <View style={styles.cardContainer}>
-              <View>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.description} numberOfLines={1}>
-                  {truncateText(item.description, 36)}
-                </Text>
-                <Text style={styles.itemPrice}>${item.price}</Text>
-              </View>
-              <View>
-                <Image
-                  source={{
-                    uri: `https://github.com/Meta-Mobile-Developer-PC/Working-With-Data-API/blob/main/images/${item.image}?raw=true`,
-                  }}
-                  style={styles.itemImage}
-                />
-              </View>
             </View>
-          )}
-        />
+            <Image source={HeroImage} style={styles.heroImage} />
+          </View>
+          <ImageBackground
+            source={Search}
+            style={styles.input}
+            imageStyle={styles.imageStyle}>
+            <TextInput style={{ flex: 1 }} />
+          </ImageBackground>
+        </View>
+        <Text style={styles.headerText}>ORDER FOR DELIVERY!</Text>
+        <View style={styles.filterContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {categories.map((category, index) => (
+              <Pressable
+                key={index}
+                style={[
+                  styles.button,
+                  selectedCategories[category.name]
+                    ? styles.selectedButton
+                    : {},
+                  index === 0 ? { marginLeft: 23 } : {},
+                ]}
+                onPress={() => handleCategoryPress(category.name)}>
+                <Text
+                  style={[
+                    styles.buttonText,
+                    selectedCategories[category.name]
+                      ? styles.selectedButtonText
+                      : {},
+                  ]}>
+                  {category.name}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+        <Divider style={styles.divider} />
+        <View style={styles.listContainer}>
+          <FlatList
+            scrollEnabled={true}
+            ItemSeparatorComponent={() => (
+              <Divider style={styles.itemDivider} />
+            )}
+            data={menu}
+            renderItem={({ item }) => (
+              <View style={styles.cardContainer}>
+                <View>
+                  <Text style={styles.itemName}>{item.name}</Text>
+                  <Text style={styles.description} numberOfLines={1}>
+                    {truncateText(item.description, 36)}
+                  </Text>
+                  <Text style={styles.itemPrice}>${item.price}</Text>
+                </View>
+                <View>
+                  <Image
+                    source={{
+                      uri: `https://github.com/Meta-Mobile-Developer-PC/Working-With-Data-API/blob/main/images/${item.image}?raw=true`,
+                    }}
+                    style={styles.itemImage}
+                  />
+                </View>
+              </View>
+            )}
+          />
+          <Divider style={styles.itemDivider} />
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -355,10 +362,10 @@ const styles = StyleSheet.create({
   heroText: {
     marginLeft: 22,
     flexDirection: 'row',
-    position: 'relative', 
+    position: 'relative',
   },
   listContainer: {
-    paddingBottom: 200,
+    paddingBottom: 50,
   },
   logoContainer: {
     flex: 1,
@@ -435,6 +442,7 @@ const styles = StyleSheet.create({
   itemDivider: {
     height: 1,
     marginRight: 23,
+    marginLeft: 26,
     backgroundColor: '#EDEFEE',
   },
   initialsAvatar: {
