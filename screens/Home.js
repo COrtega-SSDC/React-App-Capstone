@@ -7,6 +7,7 @@ import { MarkaziText_500Medium } from '@expo-google-fonts/markazi-text';
 import {
   View,
   Image,
+  ImageBackground,
   Text,
   TextInput,
   StyleSheet,
@@ -15,6 +16,8 @@ import {
   ScrollView,
 } from 'react-native';
 import { Divider } from 'react-native-paper';
+import Search from '../assets/search icon.png';
+import HeroImage from '../assets/Hero image.png';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -250,15 +253,23 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <View style={styles.heroContainer}>
-        <View style={styles.leftHero}>
-          <Text style={styles.littlelemon}>Little Lemon</Text>
-          <Text style={styles.chicago}>Chicago</Text>
-          <Text style={styles.wall}>
-            We are a family owned Mediterranean restaurant, focused on
-            traditional recipes served with a modern twist.
-          </Text>
-          <TextInput style={styles.input}/>
+        <View style={styles.heroText}>
+          <View>
+            <Text style={styles.littlelemon}>Little Lemon</Text>
+            <Text style={styles.chicago}>Chicago</Text>
+            <Text style={styles.wall}>
+              We are a family owned Mediterranean restaurant, focused on
+              traditional recipes served with a modern twist.
+            </Text>
+          </View>
+          <Image source={HeroImage} style={styles.heroImage} />
         </View>
+        <ImageBackground
+          source={Search}
+          style={styles.input}
+          imageStyle={styles.imageStyle}>
+          <TextInput style={{ flex: 1 }} />
+        </ImageBackground>
       </View>
       <Text style={styles.headerText}>ORDER FOR DELIVERY!</Text>
       <View style={styles.filterContainer}>
@@ -339,9 +350,12 @@ const styles = StyleSheet.create({
   heroContainer: {
     marginTop: 5,
     backgroundColor: '#495e57',
+    width: 427,
   },
-  leftHero: {
+  heroText: {
     marginLeft: 22,
+    flexDirection: 'row',
+    position: 'relative', 
   },
   listContainer: {
     paddingBottom: 200,
@@ -377,7 +391,7 @@ const styles = StyleSheet.create({
     fontFamily: 'MarkaziText_500Medium',
     fontWeight: 'regular',
     color: 'white',
-    marginBottom: 17
+    marginBottom: 17,
   },
   description: {
     marginBottom: 35,
@@ -389,14 +403,34 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: 'grey',
   },
+  heroImage: {
+    height: 156,
+    width: 140,
+    resizeMode: 'fit',
+    borderRadius: 16,
+    marginTop: 87,
+    marginLeft: 230,
+    position: 'absolute',
+  },
+  imageStyle: {
+    resizeMode: 'contain',
+    alignSelf: 'flex-end',
+    height: 17.5,
+    width: 17.5,
+    marginTop: 11,
+    marginLeft: 11,
+  },
   input: {
     marginTop: 32,
     marginBottom: 24,
     marginRight: 28,
+    marginLeft: 22,
+    paddingLeft: 40,
     height: 42,
     backgroundColor: 'white',
     borderRadius: 16,
     borderWidth: 1,
+    backgroundImage: `url(${Search})`,
   },
   itemDivider: {
     height: 1,
@@ -468,7 +502,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Karla_400Regular',
     fontSize: 18,
     fontWeight: 500,
-    width: 242,
+    width: 220,
     height: 105,
   },
 });
