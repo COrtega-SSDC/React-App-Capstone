@@ -85,6 +85,7 @@ export function HomeHeader() {
 export default function Home() {
   const [menu, setMenu] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState({});
+  const [searchText, setSearchText] = useState('');
 
   let [fontsLoaded, fontError] = useFonts({
     Karla_400Regular,
@@ -92,21 +93,21 @@ export default function Home() {
   });
 
   const localImageMappings = {
-  'greekSalad.jpg': require('../assets/Greek salad.png'),
-  'bruschetta.jpg': require('../assets/Bruschetta.png'),
-  'grilledFish.jpg': require('../assets/Grilled fish.png'),
-  'pasta.jpg': require('../assets/Pasta.png'),
-  'lemonDessert.jpg': require('../assets/Lemon dessert.png'),
-};
-const getLocalImage = (imageName) => {
-  const imageResource = localImageMappings[imageName];
-  if (imageResource) {
-    return imageResource;
-  } else {
-    console.log("Falling back to placeholder for:", imageName); // Useful for debugging
-    return require('../assets/default-placeholder.jpg');
-  }
-};
+    'greekSalad.jpg': require('../assets/Greek salad.png'),
+    'bruschetta.jpg': require('../assets/Bruschetta.png'),
+    'grilledFish.jpg': require('../assets/Grilled fish.png'),
+    'pasta.jpg': require('../assets/Pasta.png'),
+    'lemonDessert.jpg': require('../assets/Lemon dessert.png'),
+  };
+  const getLocalImage = (imageName) => {
+    const imageResource = localImageMappings[imageName];
+    if (imageResource) {
+      return imageResource;
+    } else {
+      console.log('Falling back to placeholder for:', imageName); // Useful for debugging
+      return require('../assets/default-placeholder.jpg');
+    }
+  };
 
   const initializeDB = () => {
     db.transaction((tx) => {
@@ -159,60 +160,85 @@ const getLocalImage = (imageName) => {
     });
   };
 
-  
-const fetchMenu = async () => {
-  try {
-    const response = await fetch(
-      'https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json'
-    );
-    const data = await response.json();
+  const fetchMenu = async () => {
+    try {
+      const response = await fetch(
+        'https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json'
+      );
+      const data = await response.json();
 
-    db.transaction((tx) => {
-      data.menu.forEach((item) => {
-        const imageName = item.image.split('/').pop(); // Get just the filename
-        // No longer insert the require statement in the database, just the filename
-        tx.executeSql(
-          'INSERT INTO menu (name, description, price, image, category) VALUES (?, ?, ?, ?, ?)',
-          [item.name, item.description, item.price, imageName, item.category],
-          // ...callbacks
-        );
+      db.transaction((tx) => {
+        data.menu.forEach((item) => {
+          const imageName = item.image.split('/').pop(); // Get just the filename
+          // No longer insert the require statement in the database, just the filename
+          tx.executeSql(
+            'INSERT INTO menu (name, description, price, image, category) VALUES (?, ?, ?, ?, ?)',
+            [item.name, item.description, item.price, imageName, item.category]
+            // ...callbacks
+          );
+        });
       });
-    });
 
-    // Immediately update the menu state to show local images
-    const updatedMenuData = data.menu.map((item) => {
-      const imageName = item.image.split('/').pop(); // Get just the filename
-      const localImage = localImageMappings[imageName]; // Get the corresponding local image
-      return { ...item, image: localImage };
-    });
+      // Immediately update the menu state to show local images
+      const updatedMenuData = data.menu.map((item) => {
+        const imageName = item.image.split('/').pop(); // Get just the filename
+        const localImage = localImageMappings[imageName]; // Get the corresponding local image
+        return { ...item, image: localImage };
+      });
 
-    setMenu(updatedMenuData);
-    console.log('Fetched menu data:', updatedMenuData);
+      setMenu(updatedMenuData);
+      console.log('Fetched menu data:', updatedMenuData);
+    } catch (error) {
+      console.error('Error fetching menu data:', error);
+    }
+  };
 
-  } catch (error) {
-    console.error('Error fetching menu data:', error);
+  const fetchFilteredMenu = () => {
+  const searchTextFormatted = searchText.trim().toLowerCase();
+  let query = 'SELECT * FROM menu WHERE 1=1'; // Neutral starting point
+  let params = [];
+
+  // Text filter
+  if (searchTextFormatted) {
+    query += ' AND lower(name) LIKE ?';
+    params.push(`%${searchTextFormatted}%`);
   }
+
+  // Category filter
+  const selectedCategoryKeys = Object.keys(selectedCategories).filter(key => selectedCategories[key]);
+  if (selectedCategoryKeys.length > 0) {
+    query += ' AND category IN (' + selectedCategoryKeys.map(() => '?').join(',') + ')';
+    params = params.concat(selectedCategoryKeys.map(key => key.toLowerCase()));
+  }
+
+  db.transaction(tx => {
+    tx.executeSql(
+      query,
+      params,
+      (_, { rows: { _array } }) => {
+        console.log('Filtered results:', _array); // Helpful for debugging
+        setMenu(_array);
+      },
+      (_, error) => console.error('Error executing filter query:', error)
+    );
+  });
 };
 
-const renderItem = ({ item }) => (
-  <View style={styles.cardContainer}>
-    <View>
-      <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.description} numberOfLines={1}>
-        {truncateText(item.description, 36)}
-      </Text>
-      <Text style={styles.itemPrice}>${item.price}</Text>
-    </View>
-    <View>
-      <Image
-        source={getLocalImage(item.image)}
-        style={styles.itemImage}
-      />
-    </View>
-  </View>
-);
 
-
+  const renderItem = ({ item }) => (
+    <View style={styles.cardContainer}>
+      <View>
+        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={styles.description} numberOfLines={1}>
+          {truncateText(item.description, 36)}
+        </Text>
+        <Text style={styles.itemPrice}>${item.price}</Text>
+      </View>
+      <View>
+        <Image source={getLocalImage(item.image)} style={styles.itemImage} />
+      </View>
+    </View>
+  );
 
   useEffect(() => {
     initializeDB();
@@ -258,6 +284,17 @@ const renderItem = ({ item }) => (
     }
   }, [selectedCategories]);
 
+  useEffect(() => {
+  const handler = setTimeout(() => {
+    fetchFilteredMenu(); 
+  }, 500); 
+
+  return () => {
+    clearTimeout(handler); 
+  };
+}, [searchText, JSON.stringify(selectedCategories)]); 
+
+
   if (!fontsLoaded && !fontError) {
     return null;
   }
@@ -279,11 +316,11 @@ const renderItem = ({ item }) => (
   ];
 
   const handleCategoryPress = (categoryName) => {
-    setSelectedCategories((prevState) => ({
-      ...prevState,
-      [categoryName]: !prevState[categoryName],
-    }));
-  };
+  setSelectedCategories(prevState => ({
+    ...prevState,
+    [categoryName]: !prevState[categoryName],
+  }), fetchFilteredMenu); 
+};
 
   return (
     <ScrollView>
@@ -304,7 +341,12 @@ const renderItem = ({ item }) => (
             source={Search}
             style={styles.input}
             imageStyle={styles.imageStyle}>
-            <TextInput style={{ flex: 1 }} />
+            <TextInput
+              style={{ flex: 1 }}
+              value={searchText}
+              placeholder={'Search '}
+              onChangeText={setSearchText}
+            />
           </ImageBackground>
         </View>
         <Text style={styles.headerText}>ORDER FOR DELIVERY!</Text>
